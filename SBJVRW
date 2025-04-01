@@ -1,0 +1,98 @@
+//Dependências no pom.xml
+//Adicione estas dependências:
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-ui</artifactId>
+    <version>1.6.14</version>
+</dependency>
+
+//Configuração no application.properties
+//Configure o banco de dados PostgreSQL:
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/seu_banco
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+//Modelo (Entity)
+//Crie uma classe para representar os dados:
+
+@Entity
+public class Produto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String nome;
+    private Double preco;
+
+    // Getters e Setters
+}
+
+//Repositório
+//Crie um repositório para interagir com o banco de dados:
+
+@Repository
+public interface ProdutoRepository extends JpaRepository<Produto, Long> {
+}
+
+//Serviço
+//Implemente a lógica de negócios:
+
+@Service
+public class ProdutoService {
+    private final ProdutoRepository produtoRepository;
+
+    public ProdutoService(ProdutoRepository produtoRepository) {
+        this.produtoRepository = produtoRepository;
+    }
+
+    public List<Produto> listarProdutos() {
+        return produtoRepository.findAll();
+    }
+
+    public Produto salvarProduto(Produto produto) {
+        return produtoRepository.save(produto);
+    }
+}
+
+//Controlador
+//Crie endpoints REST:
+
+@RestController
+@RequestMapping("/api/produtos")
+public class ProdutoController {
+    private final ProdutoService produtoService;
+
+    public ProdutoController(ProdutoService produtoService) {
+        this.produtoService = produtoService;
+    }
+
+    @GetMapping
+    public List<Produto> listarProdutos() {
+        return produtoService.listarProdutos();
+    }
+
+    @PostMapping
+    public Produto criarProduto(@RequestBody Produto produto) {
+        return produtoService.salvarProduto(produto);
+    }
+}
+
+
+//Documentação Swagger
+//Com dependências Swagger, a documentação estará disponível em: http://localhost:8080/swagger-ui.html.
